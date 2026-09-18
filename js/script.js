@@ -298,7 +298,7 @@ btnComecar.addEventListener(
         // Inicia a música de fundo após o primeiro clique
         const audio = document.getElementById("audioFundo");
         if (audio) {
-            audio.volume = 0.4; // Ajuste de volume de 0.0 a 1.0
+            audio.volume = 0.2; // Ajuste de volume de 0.0 a 1.0
             audio.play().catch(erro => {
                 console.log("A reprodução foi bloqueada pelo navegador:", erro);
             });
