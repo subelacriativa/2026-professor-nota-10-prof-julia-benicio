@@ -742,6 +742,69 @@ function soltarConfetes() {
 
 }
 
+/* ==========================================================
+   CONTROLE DE VOLUME SUAVE (AUDIO + VÍDEO)
+========================================================== */
+
+const audioFundo = document.getElementById("audioFundo");
+const videoHomenagem = document.getElementById("videoHomenagem");
+
+let intervaloFade = null;
+
+// Função para alterar o volume gradualmente
+function ajustarVolumeSuave(audio, volumeAlvo, duracao = 1000) {
+    if (!audio) return;
+
+    clearInterval(intervaloFade);
+
+    const volumeInicial = audio.volume;
+    const diferenca = volumeAlvo - volumeInicial;
+    const passos = 20; // Número de etapas no fade
+    const tempoPasso = duracao / passos;
+    let passoAtual = 0;
+
+    intervaloFade = setInterval(() => {
+        passoAtual++;
+        
+        // Calcula o novo volume
+        const novoVolume = volumeInicial + (diferenca * (passoAtual / passos));
+        audio.volume = Math.min(Math.max(novoVolume, 0), 1);
+
+        if (passoAtual >= passos) {
+            clearInterval(intervaloFade);
+            // Se o volume chegou a zero, você pode pausar para economizar recursos (opcional)
+            if (volumeAlvo === 0) {
+                audio.pause();
+            }
+        }
+    }, tempoPasso);
+}
+
+// Evento: Quando o vídeo começa a tocar (Play)
+if (videoHomenagem) {
+    videoHomenagem.addEventListener("play", () => {
+        ajustarVolumeSuave(audioFundo, 0.05, 1200); // Reduz o áudio para 5% em 1.2 segundos
+    });
+
+    // Evento: Quando o vídeo é pausado
+    videoHomenagem.addEventListener("pause", () => {
+        // Só restaura se o áudio não tiver chegado ao fim do vídeo
+        if (!videoHomenagem.ended && audioFundo) {
+            if (audioFundo.paused) audioFundo.play();
+            ajustarVolumeSuave(audioFundo, 0.4, 1200); // Retorna o áudio para 40%
+        }
+    });
+
+    // Evento: Quando o vídeo termina totalmente
+    videoHomenagem.addEventListener("ended", () => {
+        if (audioFundo) {
+            if (audioFundo.paused) audioFundo.play();
+            ajustarVolumeSuave(audioFundo, 0.4, 1500); // Retorna o áudio para 40% em 1.5 segundos
+        }
+    });
+}
+
+
 
 /* ==========================================================
    INICIALIZAÇÃO
